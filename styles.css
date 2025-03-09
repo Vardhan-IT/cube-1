@@ -1,0 +1,253 @@
+
+canvas {
+    display: block;
+}
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+
+
+
+#objectSelection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.object-sample {
+    width: 50px;
+    height: 50px;
+    cursor: grab;
+    touch-action: none; /* Fixes touch dragging */
+}
+@media (max-width: 768px) {
+    #object-container {
+        right: 50%;
+        transform: translate(50%, -50%);
+    }
+}
+/* General Button Styling */
+button {
+    padding: 10px 15px;
+    margin: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    background: linear-gradient(45deg, #4CAF50, #008CBA);
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+    display: block;
+    width: 50%;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #008CBA, #4CAF50);
+}
+
+/* Drag & Drop Object Selection - Moved to Right Corner */
+#object-container {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 10px 0 0 10px;
+    text-align: center;
+    width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Chatbox Styling - Fixed Bottom Left */
+#chat-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 250px;
+    background: white;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Chat Messages */
+#chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+/* Save & Load Buttons - Centered at Bottom */
+#saveRoom, #loadRoom {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+}
+
+/* Music Button - Fixed to Bottom Right */
+#toggleMusic {
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    #object-container {
+        right: 5px;
+        width: 180px;
+    }
+
+    #chat-container {
+        left: 5px;
+        width: 200px;
+    }
+
+     #loadRoom {
+        bottom: 50px;
+    }
+    #saveRoom {
+        bottom: 30px;
+    }
+
+    #toggleMusic {
+        right: 5px;
+        bottom: 50px;
+    }
+}
+
+
+/* 🌟 GENERAL STYLES */
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    touch-action: manipulation;
+}
+
+/* 🎛️ MENU BUTTON (ALWAYS VISIBLE) */
+#menuButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    padding: 10px 15px;
+    background: linear-gradient(45deg, #4CAF50, #008CBA);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+#menuButton:hover {
+    background: linear-gradient(45deg, #008CBA, #4CAF50);
+}
+
+/* 📜 MENU CONTAINER (HIDDEN BY DEFAULT) */
+#menuContainer {
+    position: fixed;
+    top: 0;
+    left: -230px; /* Start off-screen */
+    width: 220px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    overflow-y: auto;
+    border-radius: 0 10px 10px 0;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease-in-out;
+    z-index: 99;
+}
+
+/* 🎛️ SCROLLBAR FOR MENU */
+#menuContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#menuContainer::-webkit-scrollbar-thumb {
+    background: #008CBA;
+    border-radius: 4px;
+}
+
+/* 🔘 MENU BUTTONS */
+#menuContainer button {
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(45deg, #4CAF50, #008CBA);
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+#menuContainer button:hover {
+    background: linear-gradient(45deg, #008CBA, #4CAF50);
+}
+
+/* 🎛️ DRAG & DROP SECTION (ALWAYS VISIBLE ON RIGHT) */
+#object-container {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 10px 0 0 10px;
+    text-align: center;
+    width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+/* 💬 CHAT BOX (BOTTOM LEFT - ALWAYS VISIBLE) */
+#chat-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 250px;
+    background: white;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 🖥️ RESPONSIVE FIXES FOR SMALL SCREENS */
+@media (max-width: 768px) {
+    #menuContainer {
+        width: 200px;
+    }
+
+    #object-container {
+        right: 5px;
+        width: 180px;
+    }
+
+    #chat-container {
+        left: 5px;
+        width: 200px;
+    }
+}

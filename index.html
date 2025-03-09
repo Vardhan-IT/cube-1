@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cube Room</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="ui">
+        <div id="upload-container">
+
+<!-- Menu Button -->
+<button id="menuButton">📜 Menu</button>
+
+<!-- Sidebar Menu -->
+<div id="menuContainer">
+    <h3>Event Controls</h3>
+    
+    <h4>🎨 Cube Textures</h4>
+    <label>Select 6 Images for Cube Sides:</label>
+    <input type="file" id="fileInput" multiple accept="image/*">
+
+    <h4>📏 Scaling</h4>
+    <button id="scaleUp">➕ Scale Up</button>
+    <button id="scaleDown">➖ Scale Down</button>
+
+    <h4>📥 Save & Load</h4>
+    <button id="saveRoom">💾 Save Room</button>
+    <button id="loadRoom">📂 Load Room</button>
+
+    <h4>🛋 Furniture</h4>
+    <button onclick="addFurniture('Table')">🪑 Add Table</button>
+    <button onclick="addFurniture('Chair')">🪑 Add Chair</button>
+
+    <h4>🚪 Walls</h4>
+    <button onclick="addWallFeature('Door')">🚪 Add Door</button>
+    <button onclick="addWallFeature('Window')">🪟 Add Window</button>
+
+    <h4>🎭 Object Textures</h4>
+    <input type="file" id="objectTextureUpload" accept="image/*">
+    <button id="applyTextureBtn">🎨 Apply Texture</button>
+
+    <h4>📺 TV</h4>
+    <button onclick="addTV()">📺 Add TV</button>
+    <input type="file" id="tvUpload" accept="image/*, video/*">
+    <button id="applyTVMedia">🎥 Apply Media</button>
+
+    <h4>🧑 Avatar</h4>
+    <select id="avatarSelection">
+        <option value="👨">👨 Person</option>
+        <option value="👩">👩 Woman</option>
+        <option value="🤖">🤖 Robot</option>
+    </select>
+    <button id="spawnAvatar">🕺 Spawn Avatar</button>
+
+    <h4>🎵 Music</h4>
+    <button id="toggleMusic">🎶 Play Music</button>
+</div>
+
+<!-- Drag & Drop Section (ALWAYS Visible) -->
+<div id="object-container">
+    <h3>Drag Objects</h3>
+    <div id="objectSelection"></div>
+</div>
+
+<!-- Chat Box -->
+<div id="chat-container">
+    <div id="chat-messages"></div>
+    <input type="text" id="chat-input" placeholder="Type a message...">
+    <button id="sendMessage">Send</button>
+</div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
+    <script src="main.js"></script>
+</body>
+</html>
