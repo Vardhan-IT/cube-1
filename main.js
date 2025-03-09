@@ -1,3 +1,4 @@
+
 // Scene, Camera, Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -21,16 +22,12 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
-// Cube with 5 Sides (1 Open)
+// Cube with 6 Sides (1 Open)
 const geometry = new THREE.BoxGeometry(3, 3, 3);
-const materials = [
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide }), // Left Wall
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide }), // Right Wall
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide }), // Ceiling
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide }), // Floor
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide }), // Back Wall
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide })  // Front Wall (Previously Open)
-];
+const materials = Array(6).fill().map(() => 
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+);
+
 
 const cube = new THREE.Mesh(geometry, materials);
 scene.add(cube);
@@ -38,8 +35,8 @@ scene.add(cube);
 // Handle Image Uploads for Cube Sides (Fixed for Mobile)
 document.getElementById('fileInput').addEventListener('change', (event) => {
     const files = event.target.files;
-    if (files.length !== 5) {
-        alert("Please upload exactly 5 images.");
+    if (files.length !== 6) {
+        alert("Please upload exactly 6 images.");
         return;
     }
 
@@ -52,6 +49,18 @@ document.getElementById('fileInput').addEventListener('change', (event) => {
         });
     });
 });
+
+document.getElementById("updateRoomSize").addEventListener("click", () => {
+    const width = parseFloat(document.getElementById("roomWidth").value);
+    const height = parseFloat(document.getElementById("roomHeight").value);
+    const depth = parseFloat(document.getElementById("roomDepth").value);
+
+    cube.geometry.dispose(); // Remove old geometry
+    cube.geometry = new THREE.BoxGeometry(width, height, depth);
+
+    cube.position.y = height / 2; // Keep cube on the ground
+});
+
 
 // Objects
 const objects = [];
@@ -434,80 +443,12 @@ database.ref("roomObjects").on("value", (snapshot) => {
     });
 });
 
-document.getElementById("sendMessage").addEventListener("click", () => {
-    const message = document.getElementById("chat-input").value;
-    if (!message) return;
-
-    database.ref("chat").push({ text: message });
-    document.getElementById("chat-input").value = ""; // Clear input
-});
-
-database.ref("chat").on("child_added", (snapshot) => {
-    const messageDiv = document.createElement("div");
-    messageDiv.textContent = snapshot.val().text;
-    document.getElementById("chat-messages").appendChild(messageDiv);
-});
-
-document.getElementById("spawnAvatar").addEventListener("click", () => {
-    const avatarType = document.getElementById("avatarSelection").value;
-    
-    const avatar = new THREE.Mesh(
-        new THREE.SphereGeometry(0.2, 32, 32), 
-        new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff })
-    );
-    
-    avatar.position.set(Math.random() * 2 - 1, 0.2, Math.random() * 2 - 1);
-    avatar.userData.isAvatar = true;
-    
-    scene.add(avatar);
-    objects.push(avatar);
-});
-
-
-function addStage() {
-    const stageMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });
-    const stage = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1.5), stageMaterial);
-    stage.position.set(0, -0.1, -1.5);
-
-    // Microphone
-    const micStand = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 16), new THREE.MeshStandardMaterial({ color: 0x888888 }));
-    micStand.position.set(0, 0.5, 0);
-    stage.add(micStand);
-
-    scene.add(stage);
-    objects.push(stage);
-}
-
-
-function addSeat() {
-    const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.5), seatMaterial);
-    seat.position.set(Math.random() * 2 - 1, 0, Math.random() * 2 - 1);
-
-    scene.add(seat);
-    objects.push(seat);
-}
-
-
-const bgMusic = new Audio('event_music.mp3'); // Replace with actual music file
-bgMusic.loop = true;
-
-document.getElementById("toggleMusic").addEventListener("click", () => {
-    if (bgMusic.paused) {
-        bgMusic.play();
-        document.getElementById("toggleMusic").textContent = "⏸ Pause Music";
-    } else {
-        bgMusic.pause();
-        document.getElementById("toggleMusic").textContent = "🎵 Play Music";
+document.addEventListener("keydown", (event) => {
+    if (selectedObject) {
+        if (event.key === "ArrowLeft") selectedObject.rotation.y -= 0.1;
+        if (event.key === "ArrowRight") selectedObject.rotation.y += 0.1;
     }
 });
-
-document.getElementById("menuButton").addEventListener("click", () => {
-    const menu = document.getElementById("menuContainer");
-    if (menu.style.left === "-230px" || menu.style.left === "") {
-        menu.style.left = "0px"; // Show menu
-    } else {
-        menu.style.left = "-230px"; // Hide menu
-    }
+document.getElementById("roomSize").addEventListener("input", (event) => {
+    cube.scale.set(event.target.value, event.target.value, event.target.value);
 });
-
