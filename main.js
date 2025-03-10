@@ -1,4 +1,5 @@
 
+
 // Scene, Camera, Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -113,6 +114,12 @@ function createObject(shape) {
 const dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
 dragControls.addEventListener('dragstart', () => controls.enabled = false);
 dragControls.addEventListener('dragend', () => controls.enabled = true);
+dragControls.addEventListener("dragstart", (event) => {
+    controls.enabled = false;
+});
+dragControls.addEventListener("dragend", (event) => {
+    controls.enabled = true;
+});
 
 
 
@@ -452,3 +459,188 @@ document.addEventListener("keydown", (event) => {
 document.getElementById("roomSize").addEventListener("input", (event) => {
     cube.scale.set(event.target.value, event.target.value, event.target.value);
 });
+
+
+function addStage() {
+    const stage = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.3, 1), // Smaller stage to fit inside the room
+        new THREE.MeshStandardMaterial({ color: 0xff0000 }) // Red color
+    );
+    stage.position.set(0, 0.15, -1); // Inside the room
+    scene.add(stage);
+    objects.push(stage);
+}
+
+function addPodium() {
+    const podium = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 1, 0.5), // Small enough for the room
+        new THREE.MeshStandardMaterial({ color: 0xff0000 }) // Red color
+    );
+    podium.position.set(0, 0.5, -1.2); // Positioned near the stage
+    scene.add(podium);
+    objects.push(podium);
+}
+
+function addScreen() {
+    const screenMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1), screenMaterial);
+    screen.position.set(0, 1.5, -2.4); // On the back wall inside the room
+    scene.add(screen);
+    objects.push(screen);
+}
+
+// Button event listeners
+document.getElementById("addStage").addEventListener("click", addStage);
+document.getElementById("addPodium").addEventListener("click", addPodium);
+document.getElementById("addScreen").addEventListener("click", addScreen);
+
+// Handle media upload for screen
+document.getElementById("applyScreenMedia").addEventListener("click", () => {
+    const fileInput = document.getElementById("screenUpload");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image or video.");
+        return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const loader = new THREE.TextureLoader();
+
+    if (file.type.startsWith("image")) {
+        loader.load(url, (texture) => {
+            selectedObject.material.map = texture;
+            selectedObject.material.needsUpdate = true;
+        });
+    } else if (file.type.startsWith("video")) {
+        const video = document.createElement("video");
+        video.src = url;
+        video.loop = true;
+        video.muted = true;
+        video.play();
+
+        const videoTexture = new THREE.VideoTexture(video);
+        selectedObject.material.map = videoTexture;
+        selectedObject.material.needsUpdate = true;
+    }
+});
+
+// Button event listeners
+document.getElementById("addStage").addEventListener("click", addStage);
+document.getElementById("addPodium").addEventListener("click", addPodium);
+document.getElementById("addScreen").addEventListener("click", addScreen);
+
+const eventLight = new THREE.PointLight(0xffffff, 1, 10);
+eventLight.position.set(0, 3, 0);
+scene.add(eventLight);
+
+document.getElementById("lightColor").addEventListener("input", (event) => {
+    eventLight.color.set(event.target.value);
+});
+
+document.getElementById("lightIntensity").addEventListener("input", (event) => {
+    eventLight.intensity = parseFloat(event.target.value);
+});
+
+// Flickering Light Effect
+let flickering = false;
+function flickerEffect() {
+    if (!flickering) return;
+    eventLight.intensity = 0.8 + Math.random() * 0.4;
+    setTimeout(flickerEffect, 200);
+}
+
+document.getElementById("toggleFlicker").addEventListener("click", () => {
+    flickering = !flickering;
+    if (flickering) flickerEffect();
+});
+
+// Floor Texture Upload
+document.getElementById("floorTextureUpload").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+        alert("Please select an image.");
+        return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const loader = new THREE.TextureLoader();
+
+    loader.load(url, (texture) => {
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(10, 10),
+            new THREE.MeshStandardMaterial({ map: texture })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = 0;
+        scene.add(floor);
+    });
+});
+
+window.addEventListener("touchstart", (event) => {
+    const touch = event.touches[0];
+    const mouse = new THREE.Vector2(
+        (touch.clientX / window.innerWidth) * 2 - 1,
+        -(touch.clientY / window.innerHeight) * 2 + 1
+    );
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(objects);
+
+    if (intersects.length > 0) {
+        selectedObject = intersects[0].object;
+    }
+});
+
+
+dragControls.addEventListener('dragend', (event) => {
+    const gridSize = 0.5; // Snap objects to nearest 0.5 unit
+    event.object.position.x = Math.round(event.object.position.x / gridSize) * gridSize;
+    event.object.position.y = Math.round(event.object.position.y / gridSize) * gridSize;
+    event.object.position.z = Math.round(event.object.position.z / gridSize) * gridSize;
+});
+
+
+let lastTap = 0;
+window.addEventListener("touchstart", (event) => {
+    const now = new Date().getTime();
+    if (now - lastTap < 300 && selectedObject) {
+        scene.remove(selectedObject);
+        objects.splice(objects.indexOf(selectedObject), 1);
+        selectedObject = null;
+    }
+    lastTap = now;
+});
+
+
+
+database.ref("roomObjects").on("value", (snapshot) => {
+    if (!snapshot.exists()) return;
+    objects.forEach(obj => scene.remove(obj)); // Clear old objects
+    objects.length = 0;
+
+    const data = snapshot.val();
+    data.forEach(objData => {
+        let obj;
+        const material = new THREE.MeshStandardMaterial({ color: objData.color || 0xffffff });
+
+        if (objData.shape.includes("Sphere")) obj = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), material);
+        else if (objData.shape.includes("Box")) obj = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), material);
+        else if (objData.shape.includes("Cylinder")) obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 32), material);
+
+        obj.position.copy(objData.position);
+        obj.rotation.copy(objData.rotation);
+        obj.scale.copy(objData.scale);
+        scene.add(obj);
+        objects.push(obj);
+    });
+});
+
+
+const clickSound = new Audio("sounds/click.mp3");
+window.addEventListener("click", () => {
+    clickSound.play();
+});
+
