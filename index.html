@@ -46,6 +46,27 @@
     <input type="number" id="roomDepth" min="2" max="10" value="3">
     <button id="updateRoomSize">Update Room Size</button>
 </div>
+<div id="eventControls">
+    <button id="addStage">🎤 Add Stage</button>
+    <button id="addPodium">🎙 Add Podium</button>
+    <button id="addScreen">📺 Add Screen</button>
+    <input type="file" id="screenUpload" accept="image/*, video/*">
+    <button id="applyScreenMedia">📽 Apply Media</button>
+</div>
+<div id="lightingControls">
+    <label>Light Color:</label>
+    <input type="color" id="lightColor" value="#ffffff">
+    
+    <label>Brightness:</label>
+    <input type="range" id="lightIntensity" min="0" max="2" step="0.1" value="1">
+    
+    <button id="toggleFlicker">🔥 Toggle Flickering Light</button>
+</div>
+<div id="venueControls">
+    <label>Floor Texture:</label>
+    <input type="file" id="floorTextureUpload" accept="image/*">
+</div>
+
 </div>
 
 
