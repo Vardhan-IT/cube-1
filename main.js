@@ -703,3 +703,45 @@ document.getElementById("addImage3D").addEventListener("click", function () {
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     });
 });
+
+// ✅ Update Renderer & Camera on Window Resize
+window.addEventListener("resize", function () {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+});
+
+// ✅ Enable smooth camera control on mobile
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.enableZoom = true;
+controls.enablePan = true;
+controls.enableRotate = true; // Allow rotation on touch
+
+// ✅ Prevent Drag Issues on Mobile
+dragControls.addEventListener("dragstart", (event) => {
+    controls.enabled = false; // Disable orbit controls while dragging
+});
+
+dragControls.addEventListener("dragend", (event) => {
+    controls.enabled = true; // Re-enable orbit controls after dragging
+});
+
+// ✅ Fix Drag on Touch Devices
+dragControls.addEventListener("dragstart", (event) => {
+    controls.enabled = false; // Disable orbit controls while dragging
+});
+
+dragControls.addEventListener("dragend", (event) => {
+    controls.enabled = true; // Re-enable orbit controls after dragging
+});
+
+// ✅ Prevent Default Touch Events on Mobile (Fixes Zooming Issues)
+document.addEventListener("touchmove", function (event) {
+    event.preventDefault();
+}, { passive: false });
