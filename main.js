@@ -123,22 +123,6 @@ dragControls.addEventListener("dragstart", (event) => {
 dragControls.addEventListener("dragend", (event) => {
     controls.enabled = true;
 });
-
-
-
-dragControls.addEventListener('dragend', (event) => {
-    controls.enabled = true;
-
-    // Snapping logic (round to nearest 0.5)
-    const gridSize = 0.5;
-    event.object.position.x = Math.round(event.object.position.x / gridSize) * gridSize;
-    event.object.position.y = Math.round(event.object.position.y / gridSize) * gridSize;
-    event.object.position.z = Math.round(event.object.position.z / gridSize) * gridSize;
-});
-
-
-
-
 // Object Scaling
 document.getElementById("scaleUp").addEventListener("click", () => selectedObject?.scale.multiplyScalar(1.1));
 document.getElementById("scaleDown").addEventListener("click", () => selectedObject?.scale.multiplyScalar(0.9));
