@@ -3,6 +3,7 @@ body {
     overflow: hidden;
     font-family: Arial, sans-serif;
     touch-action: manipulation; /* Prevents browser zoom issues */
+    
 }
 canvas {
     display: block;
@@ -12,15 +13,15 @@ canvas {
     top: 10px;
     left: 10px;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.9);
+    background:rgba(255, 255, 255, 0.9)  ;
     padding: 10px;
     border-radius: 5px;
     text-align: center;
 }
 #object-container {
-    position: absolute;
-    top: 80%;
-    right: -75%; /* Keep it near the right edge */
+    position: fixed;
+    top: 30%;
+    right: 0%; /* Keep it near the right edge */
     transform: translateY(-50%);
     z-index: 10;
     background: rgba(255, 255, 255, 0.9);
@@ -59,3 +60,73 @@ canvas {
         transform: translate(50%, -50%);
     }
 }
+
+
+
+/* Style the side menu (Hidden by Default) */
+#side-menu {
+    position: fixed;
+    top: 0;
+    left: -250px; /* Hidden off-screen */
+    width: 250px;
+    height: 100%;
+    background: #333;
+    overflow-x: hidden;
+    transition: left 0.4s ease-in-out;
+    padding-top: 60px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    color:white;
+}
+
+/* Close button inside menu */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Style menu links */
+#side-menu ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#side-menu ul li {
+    padding: 10px;
+}
+
+#side-menu ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    display: block;
+}
+
+#side-menu ul li a:hover {
+    background: white;
+}
+
+/* Style the menu button */
+#menu-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #333;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+#menu-button:hover {
+    background: #555;
+}
+
+
