@@ -1,5 +1,7 @@
 
 
+let selectedStage = null;
+
 // Scene, Camera, Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -26,8 +28,9 @@ scene.add(directionalLight);
 // Cube with 6 Sides (1 Open)
 const geometry = new THREE.BoxGeometry(3, 3, 3);
 const materials = Array(6).fill().map(() => 
-    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide }) // <-- Use BackSide so it's visible inside
 );
+
 
 
 const cube = new THREE.Mesh(geometry, materials);
@@ -120,6 +123,21 @@ dragControls.addEventListener("dragstart", (event) => {
 dragControls.addEventListener("dragend", (event) => {
     controls.enabled = true;
 });
+
+
+
+dragControls.addEventListener('dragend', (event) => {
+    controls.enabled = true;
+
+    // Snapping logic (round to nearest 0.5)
+    const gridSize = 0.5;
+    event.object.position.x = Math.round(event.object.position.x / gridSize) * gridSize;
+    event.object.position.y = Math.round(event.object.position.y / gridSize) * gridSize;
+    event.object.position.z = Math.round(event.object.position.z / gridSize) * gridSize;
+});
+
+
+
 
 // Object Scaling
 document.getElementById("scaleUp").addEventListener("click", () => selectedObject?.scale.multiplyScalar(1.1));
@@ -397,16 +415,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-
 function syncObjects() {
-    const objectData = objects.map(obj => ({
-        shape: obj.geometry.type,
-        position: obj.position,
-        rotation: obj.rotation,
-        scale: obj.scale
-    }));
+    objects.forEach((obj, index) => {
+        const objectData = {
+            shape: obj.geometry.type,
+            position: obj.position,
+            rotation: obj.rotation,
+            scale: obj.scale
+        };
 
-    database.ref("roomObjects").set(objectData);
+        database.ref(`roomObjects/object_${index}`).set(objectData);
+    });
 }
 
 
@@ -446,15 +465,50 @@ document.getElementById("roomSize").addEventListener("input", (event) => {
 });
 
 
+
 function addStage() {
-    const stage = new THREE.Mesh(
-        new THREE.BoxGeometry(2, 0.3, 1), // Smaller stage to fit inside the room
-        new THREE.MeshStandardMaterial({ color: 0xff0000 }) // Red color
+    console.log("🔹 addStage() function called!");
+
+    const material = new THREE.MeshStandardMaterial({ color: 0x8B0000 });
+
+    // ✅ Create the Stage (Width, Height, Depth)
+    let newStage = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.3, 1),
+        material
     );
-    stage.position.set(0, 0.15, -1); // Inside the room
-    scene.add(stage);
-    objects.push(stage);
+
+    console.log("🛠️ Stage object created:", newStage);
+
+    // ✅ Ensure the stage is inside the cube
+    newStage.position.set(0, 0.15, 0); // Center of the cube
+
+    // ✅ Add the stage to the scene and objects array
+    scene.add(newStage);
+    objects.push(newStage);
+
+    // ✅ Assign newStage to the global selectedStage variable
+    selectedStage = newStage;
+
+    console.log("✅ selectedStage updated:", selectedStage);
+
+    // ✅ Ensure it's movable
+    selectedStage.userData.isMovable = true;
+
+    // ✅ Re-enable Drag Controls for new objects
+    dragControls.dispose();
+    dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
 }
+
+// ✅ Attach Function to Button
+document.getElementById("addStage").addEventListener("click", addStage);
+
+selectedStage.position.set(0, 0.5, 0); // Move it higher
+selectedStage.material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Bright red color
+
+selectedStage.position.set(0, 0, 0); // Move to the exact center
+const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Bright red
+
+
 
 function addPodium() {
     const podium = new THREE.Mesh(
@@ -563,69 +617,105 @@ document.getElementById("floorTextureUpload").addEventListener("change", (event)
     });
 });
 
-window.addEventListener("touchstart", (event) => {
-    const touch = event.touches[0];
-    const mouse = new THREE.Vector2(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        -(touch.clientY / window.innerHeight) * 2 + 1
-    );
+function openMenu() {
+    document.getElementById("side-menu").style.left = "0"; // Slide menu in
+}
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(objects);
+function closeMenu() {
+    document.getElementById("side-menu").style.left = "-250px"; // Slide menu out
+}
+document.addEventListener("click", (event) => {
+    const menu = document.getElementById("side-menu");
+    const menuButton = document.getElementById("menu-button");
 
-    if (intersects.length > 0) {
-        selectedObject = intersects[0].object;
+    // If the click is outside the menu and not on the button, close it
+    if (!menu.contains(event.target) && event.target !== menuButton) {
+        closeMenu();
     }
 });
 
 
-dragControls.addEventListener('dragend', (event) => {
-    const gridSize = 0.5; // Snap objects to nearest 0.5 unit
-    event.object.position.x = Math.round(event.object.position.x / gridSize) * gridSize;
-    event.object.position.y = Math.round(event.object.position.y / gridSize) * gridSize;
-    event.object.position.z = Math.round(event.object.position.z / gridSize) * gridSize;
-});
 
-
-let lastTap = 0;
-window.addEventListener("touchstart", (event) => {
-    const now = new Date().getTime();
-    if (now - lastTap < 300 && selectedObject) {
-        scene.remove(selectedObject);
-        objects.splice(objects.indexOf(selectedObject), 1);
-        selectedObject = null;
+document.getElementById("applyTVMedia").addEventListener("click", () => {
+    let tvObject = selectedObject?.userData?.isTV ? selectedObject : objects.find(o => o.userData?.isTV);
+    
+    if (!tvObject) {
+        alert("No TV found! Add a TV first.");
+        return;
     }
-    lastTap = now;
+
+    const fileInput = document.getElementById("tvUpload");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a media file.");
+        return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const textureLoader = new THREE.TextureLoader();
+
+    if (file.type.startsWith("image")) {
+        textureLoader.load(url, (texture) => {
+            tvObject.material.map = texture;
+            tvObject.material.needsUpdate = true;
+        });
+    } else if (file.type.startsWith("video")) {
+        const video = document.createElement("video");
+        video.src = url;
+        video.loop = true;
+        video.muted = true;
+        video.play();
+
+        const videoTexture = new THREE.VideoTexture(video);
+        tvObject.material.map = videoTexture;
+        tvObject.material.needsUpdate = true;
+    }
 });
 
 
 
-database.ref("roomObjects").on("value", (snapshot) => {
-    if (!snapshot.exists()) return;
-    objects.forEach(obj => scene.remove(obj)); // Clear old objects
-    objects.length = 0;
+document.getElementById("addImage3D").addEventListener("click", function () {
+    const fileInput = document.getElementById("imageUpload");
+    const file = fileInput.files[0];
+    const objectType = document.getElementById("objectType").value; // Selected shape
 
-    const data = snapshot.val();
-    data.forEach(objData => {
-        let obj;
-        const material = new THREE.MeshStandardMaterial({ color: objData.color || 0xffffff });
+    if (!file) {
+        alert("Please select an image first.");
+        return;
+    }
 
-        if (objData.shape.includes("Sphere")) obj = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), material);
-        else if (objData.shape.includes("Box")) obj = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), material);
-        else if (objData.shape.includes("Cylinder")) obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 32), material);
+    const url = URL.createObjectURL(file); // Convert to a usable URL
+    const loader = new THREE.TextureLoader();
 
-        obj.position.copy(objData.position);
-        obj.rotation.copy(objData.rotation);
-        obj.scale.copy(objData.scale);
-        scene.add(obj);
-        objects.push(obj);
+    loader.load(url, (texture) => {
+        let geometry;
+
+        // ✅ Choose the geometry based on user selection
+        if (objectType === "box") {
+            geometry = new THREE.BoxGeometry(1, 1, 1); // Cube
+        } else if (objectType === "sphere") {
+            geometry = new THREE.SphereGeometry(0.5, 32, 32); // Sphere
+        } else if (objectType === "cylinder") {
+            geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32); // Cylinder
+        }
+
+        // ✅ Create a 3D object with the uploaded image as texture
+        const imageObject = new THREE.Mesh(
+            geometry,
+            new THREE.MeshStandardMaterial({ map: texture }) // Apply image texture
+        );
+
+        // ✅ Position the object in the scene
+        imageObject.position.set(0, 1, -1.5); // Adjust position
+        imageObject.userData.isMovable = true; // Mark as movable
+
+        // ✅ Add to the scene & objects array
+        scene.add(imageObject);
+        objects.push(imageObject);
+
+        // ✅ Re-enable Drag Controls for the new object
+        dragControls.dispose();
+        dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     });
 });
-
-
-const clickSound = new Audio("sounds/click.mp3");
-window.addEventListener("click", () => {
-    clickSound.play();
-});
-
