@@ -20,15 +20,15 @@ canvas {
 }
 #object-container {
     position: fixed;
-    top: 30%;
-    right: 0%; /* Keep it near the right edge */
+    top: 40%;
+    right: 1%; /* Keep it near the right edge */
     transform: translateY(-50%);
     z-index: 10;
     background: rgba(255, 255, 255, 0.9);
     padding: 10px;
     border-radius: 5px;
     text-align: center;
-    width: 150px; /* Fixed width */
+    width: 7%; /* Fixed width */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
