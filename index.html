@@ -8,7 +8,26 @@
 </head>
 <body>
     <div id="ui">
-        <div id="upload-container">
+        <div id="object-container">
+        <h3>Drag Objects</h3>
+        <div id="objectSelection"></div>
+<input type="file" id="imageUpload" accept="image/*">
+<button id="addImage3D">Add 3D Image</button>
+<select id="objectType">
+    <option value="box">Cube</option>
+    <option value="sphere">Sphere</option>
+    <option value="cylinder">Cylinder</option>
+</select>
+
+    </div>
+<!-- Menu Button -->
+<button id="menu-button" onclick="openMenu()">☰ Menu</button>
+
+<!-- Side Menu -->
+<div id="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+    <h3>Menu</h3>
+  <div id="upload-container">
             <label>Select 6 Images for Cube Sides:</label>
             <input type="file" id="fileInput" multiple accept="image/*">
         </div>
@@ -24,10 +43,7 @@
 </div>
 <input type="file" id="objectTextureUpload" accept="image/*">
 <button id="applyTextureBtn">Apply Texture</button>
-    <div id="object-container">
-        <h3>Drag Objects</h3>
-        <div id="objectSelection"></div>
-    </div>
+    
 <div id="wallFeatures">
     <button onclick="addWallFeature('Door')">🚪 Add Door</button>
     <button onclick="addWallFeature('Window')">🪟 Add Window</button>
@@ -66,7 +82,7 @@
     <label>Floor Texture:</label>
     <input type="file" id="floorTextureUpload" accept="image/*">
 </div>
-
+</div>
 </div>
 
 
