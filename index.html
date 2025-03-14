@@ -8,8 +8,21 @@
 </head>
 <body>
     <div id="ui">
+
         <div id="object-container">
         <h3>Drag Objects</h3>
+        <button onclick="createDecoration('Vase')">🏺 Add Vase</button>
+        <button onclick="createDecoration('Lamp')">💡 Add Lamp</button>
+        <button onclick="createDecoration('Picture Frame')">🖼 Add Frame</button>
+        <button onclick="createDecoration('Plant')">🌿 Add Plant</button>
+        <button onclick="createDecoration('Clock')">⏰ Add Clock</button>
+        <button onclick="createDecoration('Bookshelf')">📚 Add Bookshelf</button>
+        <button onclick="createDecoration('Candle')">🕯 Add Candle</button>
+        <button onclick="createDecoration('Sofa')">🛋 Add Sofa</button>
+        <button onclick="createDecoration('Carpet')">🟦 Add Carpet</button>
+        <button onclick="createDecoration('Mirror')">🪞 Add Mirror</button>
+        <button onclick="createDecoration('TV Stand')">📺 Add TV Stand</button>
+        <button onclick="createDecoration('Curtains')">🎭 Add Curtains</button>
         <div id="objectSelection"></div>
 <input type="file" id="imageUpload" accept="image/*">
 <button id="addImage3D">Add 3D Image</button>
@@ -31,6 +44,12 @@
             <label>Select 6 Images for Cube Sides:</label>
             <input type="file" id="fileInput" multiple accept="image/*">
         </div>
+<div id="customization-container">
+    <h3>Customize</h3>
+    <label for="objectColor">🎨 Select Color:</label>
+    <input type="color" id="objectColor" value="#ffffff">
+    <button onclick="applyColor()">Apply Color</button>
+</div>
         <button id="scaleUp">+</button>
         <button id="scaleDown">-</button>
         <button id="downloadBtn">Download Cube Image</button>
@@ -78,6 +97,13 @@
     
     <button id="toggleFlicker">🔥 Toggle Flickering Light</button>
 </div>
+<div id="rotate-container">
+    <h3>Rotate Object</h3>
+    <button onclick="rotateObject('x', 0.1)">🔄 Rotate X</button>
+    <button onclick="rotateObject('y', 0.1)">🔄 Rotate Y</button>
+    <button onclick="rotateObject('z', 0.1)">🔄 Rotate Z</button>
+</div>
+
 <div id="venueControls">
     <label>Floor Texture:</label>
     <input type="file" id="floorTextureUpload" accept="image/*">
@@ -95,3 +121,4 @@
     <script src="main.js"></script>
 </body>
 </html>
+
