@@ -25,10 +25,10 @@ canvas {
     transform: translateY(-50%);
     z-index: 10;
     background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
+    padding:10px;
     border-radius: 5px;
     text-align: center;
-    width: 7%; /* Fixed width */
+    width: 6%; /* Fixed width */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -128,5 +128,48 @@ canvas {
 #menu-button:hover {
     background: #555;
 }
+#decoration-container {
+    position: fixed;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    width: 6%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
+/* Decoration item styles */
+#decorationSelection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.decoration-sample {
+    width: 50px;
+    height: 50px;
+    cursor: grab;
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Adjustments for mobile */
+@media (max-width: 768px) {
+    #decoration-container {
+        right: 50%;
+        transform: translate(50%, -50%);
+    }
+}
 
