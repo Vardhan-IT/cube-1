@@ -1,7 +1,6 @@
-
-
+let obj;
 let selectedStage = null;
-
+let selectedObject = null;
 // Scene, Camera, Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -68,7 +67,7 @@ document.getElementById("updateRoomSize").addEventListener("click", () => {
 
 // Objects
 const objects = [];
-let selectedObject = null;
+
 const objectSelection = document.getElementById("objectSelection");
 
 // Object Types
@@ -101,7 +100,7 @@ document.body.addEventListener("drop", (event) => {
 });
 
 function createObject(shape) {
-    let obj;
+    //let obj;
     if (shape === "Sphere") obj = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }));
     else if (shape === "Cube") obj = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }));
     else if (shape === "Cylinder") obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 32), new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }));
@@ -123,6 +122,7 @@ dragControls.addEventListener("dragstart", (event) => {
 dragControls.addEventListener("dragend", (event) => {
     controls.enabled = true;
 });
+
 // Object Scaling
 document.getElementById("scaleUp").addEventListener("click", () => selectedObject?.scale.multiplyScalar(1.1));
 document.getElementById("scaleDown").addEventListener("click", () => selectedObject?.scale.multiplyScalar(0.9));
@@ -245,7 +245,7 @@ function addFurniture(type) {
 }
 
 document.getElementById("applyTextureBtn").addEventListener("click", () => {
-    if (!selectedObject) {
+    if (!selectedObject || decorations) {
         alert("Select an object first!");
         return;
     }
@@ -264,6 +264,8 @@ document.getElementById("applyTextureBtn").addEventListener("click", () => {
     textureLoader.load(url, (texture) => {
         selectedObject.material.map = texture;
         selectedObject.material.needsUpdate = true;
+        decorations.material.map = texture;
+        decorations.material.needsUpdate = true;
     });
 });
 
@@ -704,6 +706,7 @@ document.getElementById("addImage3D").addEventListener("click", function () {
     });
 });
 
+
 // ✅ Update Renderer & Camera on Window Resize
 window.addEventListener("resize", function () {
     const width = window.innerWidth;
@@ -745,3 +748,164 @@ dragControls.addEventListener("dragend", (event) => {
 document.addEventListener("touchmove", function (event) {
     event.preventDefault();
 }, { passive: false });
+
+
+const decorations = ["Vase", "Lamp", "Picture Frame", "Plant", "Clock"];
+
+decorations.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("object-sample");
+    div.innerText = item;
+    div.draggable = true;
+
+    div.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("decoration", item);
+    });
+
+    objectSelection.appendChild(div);
+});
+document.body.addEventListener("dragover", (event) => event.preventDefault());
+
+document.body.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const decorationType = event.dataTransfer.getData("decoration");
+
+    if (decorationType) {
+        createDecoration(decorationType);
+    }
+});
+function createDecoration(type) {
+    //let obj;
+ const material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+    if (type === "Vase") {
+        obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.1, 0.4, 32), material);
+    } 
+    else if (type === "Lamp") {
+        obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 32), material);
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+        bulb.position.y = 0.3;
+        obj.add(bulb);
+    } 
+    else if (type === "Picture Frame") {
+        obj = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.7), material);
+        obj.userData.isWallMounted = true;
+    } 
+    else if (type === "Plant") {
+        obj = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 0.3, 32), material);
+        const leaves = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0x00ff00 }));
+        leaves.position.y = 0.3;
+        obj.add(leaves);
+    }
+    else if (type === "Clock") {
+        obj = new THREE.Mesh(new THREE.CircleGeometry(0.3, 32), material);
+        obj.userData.isWallMounted = true;
+    }
+    else if (type === "Bookshelf") {
+        obj = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.3), material);
+    }
+   else if (type === "Candle") {
+        obj = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.3, 16), material);
+        
+        // 🔥 Add a flame (glowing effect)
+        const flameMaterial = new THREE.MeshBasicMaterial({ color: 0xffa500, emissive: 0xff5500 });
+        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), flameMaterial);
+        flame.position.y = 0.2;
+        obj.add(flame);
+
+        // ✅ Add flickering animation
+        function flickerFlame() {
+            requestAnimationFrame(flickerFlame);
+            flameMaterial.emissiveIntensity = 0.5 + Math.random() * 0.5;
+        }
+        flickerFlame();
+    }
+    else if (type === "Sofa") {
+        obj = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.7), material);
+        const backrest = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.1), material);
+        backrest.position.set(0, 0.25, -0.3);
+        obj.add(backrest);
+    }
+    else if (type === "Carpet") {
+        obj = new THREE.Mesh(new THREE.PlaneGeometry(2, 1.5), material);
+        obj.rotation.x = -Math.PI / 2;
+    }
+    else if (type === "Mirror") {
+        obj = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 1), new THREE.MeshBasicMaterial({ color: 0xaaaaaa, side: THREE.DoubleSide }));
+        obj.userData.isWallMounted = true;
+    }
+    else if (type === "TV Stand") {
+        obj = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 0.6), material);
+    }
+    else if (type === "Curtains") {
+        obj = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2), material);
+        obj.userData.isWallMounted = true;
+    }
+
+    obj.position.set(0, 0.5, -1.2); // Default placement
+    objects.push(obj);
+    scene.add(obj);
+snapToWall(obj);
+    // Re-enable Drag Controls for new objects
+    dragControls.dispose();
+    dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+}
+dragControls.addEventListener("dragstart", (event) => {
+    controls.enabled = false; 
+});
+
+dragControls.addEventListener("dragend", (event) => {
+    controls.enabled = true; 
+});
+function snapToWall(obj) {
+    if (obj.userData.isWallMounted) {
+        obj.position.z = -2.9; // Adjust to snap to the back wall
+    }
+}
+// Function to apply color to selected object
+function applyColor() {
+    if (!selectedObject || !selectedObject.material) { // ✅ Ensure object is selected
+        alert("Select an object first!");
+        return;
+    }
+
+    const colorPicker = document.getElementById("objectColor").value;
+
+    if (selectedObject.material.color) {
+        selectedObject.material.color.set(colorPicker); // ✅ Apply color safely
+    }
+}
+
+
+window.addEventListener("click", (event) => {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+    );
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(objects, true); // Enable recursive checking
+
+    if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+        
+        // ✅ Exclude the room (cube) from selection
+        if (clickedObject !== cube) {
+            selectedObject = clickedObject;
+            console.log("Selected Object:", selectedObject);
+        }
+    } else {
+        selectedObject = null; // Reset selection if clicking outside objects
+    }
+});
+
+
+
+function rotateObject(axis, angle) {
+    if (!selectedObject) {
+        alert("Select an object first!");
+        return;
+    }
+
+    selectedObject.rotation[axis] += angle;
+}
